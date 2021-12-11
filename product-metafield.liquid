@@ -1,0 +1,59 @@
+{% comment %}theme-check-disable TemplateLength{% endcomment %}
+<div style="padding: 20px;">
+  {{ product.title | escape }}
+  <hr>
+  {% comment %} 
+  test {{ all_products['1-2-sleeve-v-neck-tee-w-pocket-black'].title }}<br>
+  test {{ all_products['1-2-sleeve-v-neck-tee-w-pocket-white'].title }}<br>
+  test {{ all_products['1-2-sleeve-v-neck-tee-w-pocket-navy'].title }}<br>
+  test {{ all_products['1-2-sleeve-v-neck-tee-w-pocket-red'].title }}<br>
+  <br>
+  {%- assign product = section.settings.product -%}
+  {{ product.title | escape }}
+  
+  <br>
+{% endcomment %}
+
+  {%- assign productBundleMeta = product.metafields.product-bundles.bundle | strip -%}
+  {% comment %} <br>{{ productBundleMeta }} {% endcomment %}
+  {% assign productMeta = productBundleMeta | split: '"product_url": "' %}
+  <ul>
+    {% for meta in productMeta %}
+
+      {% assign metafield = meta | split: 'product_id' | first | remove: '"' | remove: ',' %}
+      {% if metafield contains 'color' %}{% continue %}{% else %}
+      {%- assign metafield1 = metafield | remove: "/products/" | strip -%}
+      {%- assign product = all_products[metafield1] -%}
+      <li>{{ product.title }} - {{ product.price | money_with_currency }}, Available: {{ variant.available }}<br>
+      {% for variant in product.variants %}
+        'quantity': {{ variant.inventory_quantity | default: 0 }},
+      {% endfor %}
+
+      <div style="overflow:hidden;display: block;white-space: nowrap;text-overflow: ellipsis;">{{ product | json}}</div>
+    </li>
+      {% endif %}
+
+    {%- endfor -%}
+  </ul>
+  {% comment %}{% endcomment %}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main-product.name",
+  "tag": "section",
+  "class": "product-section",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "t:sections.featured-product.settings.product.label"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.featured-product.presets.name"
+    }
+  ]
+}
+{% endschema %}
